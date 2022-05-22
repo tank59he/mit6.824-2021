@@ -9,26 +9,50 @@ package mr
 import "os"
 import "strconv"
 
-//
-// example to show how to declare the arguments
-// and reply for an RPC.
-//
+type TaskType string
 
-type ExampleArgs struct {
-	X int
+const (
+	TaskType_MAP    TaskType = "map"
+	TaskType_REDUCE TaskType = "reduce"
+)
+
+type TaskStatus string
+
+const (
+	TaskStatus_WAITING TaskStatus = "waiting"
+	TaskStatus_RUNNING TaskStatus = "running"
+	TaskStatus_SUCCESS TaskStatus = "success"
+)
+
+// GetTaskRequest 获取任务请求
+type GetTaskRequest struct {
+	WorkerId string
 }
 
-type ExampleReply struct {
-	Y int
+// GetTaskResponse 获取任务响应
+type GetTaskResponse struct {
+	Succeed         bool
+	Finished        bool
+	TaskId          string
+	TaskType        TaskType
+	InputFileUrl    string
+	OutPutFileLimit int
 }
 
-// Add your RPC definitions here.
+// ReportTaskStatusRequest 上报任务执行状态请求
+type ReportTaskStatusRequest struct {
+	WorkerId       string
+	TaskId         string
+	TaskType       TaskType
+	TaskStatus     TaskStatus
+	OutputFileName string
+}
 
+// ReportTaskStatusResponse 上报任务执行状态响应
+type ReportTaskStatusResponse struct {
+	Msg string
+}
 
-// Cook up a unique-ish UNIX-domain socket name
-// in /var/tmp, for the coordinator.
-// Can't use the current directory since
-// Athena AFS doesn't support UNIX-domain sockets.
 func coordinatorSock() string {
 	s := "/var/tmp/824-mr-"
 	s += strconv.Itoa(os.Getuid())
